@@ -1,0 +1,130 @@
+version: "2.2"
+services:
+
+  zk-1:
+    image: jarunj/zookeeper
+    restart: always
+    hostname: zk-1
+    container_name: zk-1
+    cpus: 0.6
+    volumes:
+      - ./zk-1/data:/data/zookeeper
+      - ./zk-1/logs:/opt/zookeeper/logs
+      - ./zk-1/conf:/opt/zookeeper/conf
+    ports:
+      - "2181:2181"
+  zk-2:
+    image: jarunj/zookeeper
+    restart: always
+    hostname: zk-2
+    container_name: zk-2
+    cpus: 0.6
+    volumes:
+      - ./zk-2/data:/data/zookeeper
+      - ./zk-2/logs:/opt/zookeeper/logs
+      - ./zk-2/conf:/opt/zookeeper/conf
+    ports:
+      - "2182:2181"
+
+  zk-3:
+    image: jarunj/zookeeper
+    restart: always
+    hostname: zk-3
+    container_name: zk-3
+    cpus: 0.6
+    volumes:
+      - ./zk-3/data:/data/zookeeper
+      - ./zk-3/logs:/opt/zookeeper/logs
+      - ./zk-3/conf:/opt/zookeeper/conf
+    ports:
+      - "2183:2181"
+
+  kafka-1:
+    image: jarunj/kafka
+    hostname: kafka-1
+    container_name: kafka-1
+    cpus: 1.0
+    depends_on:
+      - zk-1
+      - zk-2
+      - zk-3
+    volumes:
+      - ./kafka-1/data:/data/kafka
+      - ./kafka-1/logs:/opt/kafka/logs
+      - ./kafka-1/conf:/opt/kafka/config
+    ports:
+      - "9091:9092"
+
+  kafka-2:
+    image: jarunj/kafka
+    hostname: kafka-2
+    container_name: kafka-2
+    cpus: 1.0
+    depends_on:
+      - zk-1
+      - zk-2
+      - zk-3
+    volumes:
+      - ./kafka-2/data:/data/kafka
+      - ./kafka-2/logs:/opt/kafka/logs
+      - ./kafka-2/conf:/opt/kafka/config
+    ports:
+      - "9092:9092"
+
+  kafka-3:
+    image: jarunj/kafka
+    hostname: kafka-3
+    container_name: kafka-3
+    cpus: 1.0
+    depends_on:
+      - zk-1
+      - zk-2
+      - zk-3
+    volumes:
+      - ./kafka-3/data:/data/kafka
+      - ./kafka-3/logs:/opt/kafka/logs
+      - ./kafka-3/conf:/opt/kafka/config
+    ports:
+      - "9093:9092"
+
+  kafka-4:
+    image: jarunj/kafka
+    hostname: kafka-4
+    container_name: kafka-4
+    cpus: 1.0
+    depends_on:
+      - zk-1
+      - zk-2
+      - zk-3
+    volumes:
+      - ./kafka-4/data:/data/kafka
+      - ./kafka-4/logs:/opt/kafka/logs
+      - ./kafka-4/conf:/opt/kafka/config
+    ports:
+      - "9094:9092"
+
+  cmak:
+    image: jarunj/cmak
+    hostname: cmak
+    container_name: cmak
+    depends_on:
+      - kafka-1
+      - kafka-2
+      - kafka-3
+      - kafka-4
+    ports:
+      - 8080:8080
+    environment:
+      ZK_HOSTS: "zk-1:2181,zk-2:2181,zk-3:2181"
+
+  dummy-web:
+    image: jarunj/dummy-web
+    hostname: dummy-web
+    container_name: dummy-web
+    depends_on:
+      - kafka-1
+      - kafka-2
+      - kafka-3
+      - kafka-4
+    ports:
+      - 9000:9000
